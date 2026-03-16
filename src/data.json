@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "type": "image",
+    "image_url": "/assets/urban-reflection.png",
+    "title": "Urban Reflection in Dramatic Light",
+    "author": "@tariqHasanSyed",
+    "date": "September 30, 2025",
+    "prompt": "Dramatic, ultra-realistic close-up in black and white with high-contrast cinematic lighting from the side, highlighting the contours of his face and beard, casting deep shadows. He wears round, reflective sunglasses. He gazes confidently upward into a dark void. The sunglasses reflect a city's towering skyline. The atmosphere is mysterious with a minimalist black background. Details in 4K. Keep the subject's exact facial structure, hair texture, the original photo.",
+    "likes": "1.5k",
+    "metadata": {
+      "dimensions": "4096 x 4096",
+      "engine": "Banana AI v2",
+      "exposure": "1/200s",
+      "f_stop": "f/2.8"
+    }
+  },
+  {
+    "id": 2,
+    "type": "passport",
+    "image_url": "/assets/portrait.png",
+    "title": "Cybernetic Identity",
+    "author": "@aether_walker",
+    "date": "October 12, 2025",
+    "prompt": "Professional passport photo, neutral expression, centered, soft studio lighting, plain off-white background, high-resolution portrait.",
+    "likes": "842",
+    "metadata": {
+      "dimensions": "2x2 inch",
+      "engine": "Aether-v3.2",
+      "resolution": "600dpi"
+    }
+  }
+]
