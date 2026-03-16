@@ -29,7 +29,11 @@ Whether you are using **DALL-E 3**, **Midjourney**, **Stable Diffusion**, or **N
 *Explore the most sophisticated library of AI prompts.*
 <img width="1200" alt="Gallery Showcase" src="public/assets/docs/gallery.png" />
 
+### ⚙️ Neural Admin Engine
+*Seamlessly upload and manage new dimensions of data.*
+<img width="1200" alt="Admin Panel" src="public/assets/docs/admin_panel.png" />
 
+---
 
 ## 🛠️ Run Locally
 
@@ -51,6 +55,8 @@ Whether you are using **DALL-E 3**, **Midjourney**, **Stable Diffusion**, or **N
 
 ## 🌐 Deploy
 This project is optimized for deployment on **Vercel**. Every push to `main` branch automatically triggers a new production build.
+
+**Live Demo**: [promptverse-ai.vercel.app](https://promptverse-ai.vercel.app)
 
 ---
 
