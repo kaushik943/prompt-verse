@@ -1,20 +1,61 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+<img width="1200" alt="PromptVerse Banner" src="public/assets/docs/gallery.png" />
+
+# 🌌 PROMPTVERSE
+### Master AI Vision & Creative Intelligence
 </div>
 
-# Run and deploy your AI Studio app
+---
 
-This contains everything you need to run your app locally.
+## 🚀 The Visionary Series
+This project is part of my **Weekly Innovation Challenge**, where I build and deploy high-utility AI tools and premium interfaces. **PromptVerse** is the first masterpiece in this series, designed to empower creators with the perfect language for image generation and photo editing.
 
-View your app in AI Studio: https://ai.studio/apps/40433ce1-2de7-4b1b-add7-f3aaf6b3b070
+Whether you are using **DALL-E 3**, **Midjourney**, **Stable Diffusion**, or **Nano Banana**, PromptVerse provides the neural bridge between your vision and the algorithm.
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## ✨ Features
+- **Neural Gallery**: A high-performance showcase of curated AI generations.
+- **Instant Synthesis**: One-click copying of optimized prompts for immediate testing.
+- **Admin Engine**: A dedicated interface for contributors to expand the multiverse with new assets and metadata.
+- **Premium Aesthetics**: Editorial Magzine-style design with full Dark/Light mode support.
+- **Universal Optimization**: Prompts verified to work across the leading generative landscape.
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 📸 Screenshots
+
+### 🖼️ The Gallery Experience
+*Explore the most sophisticated library of AI prompts.*
+<img width="1200" alt="Gallery Showcase" src="public/assets/docs/gallery.png" />
+
+### ⚙️ Neural Admin Engine
+*Seamlessly upload and manage new dimensions of data.*
+<img width="1200" alt="Admin Panel" src="public/assets/docs/admin_panel.png" />
+
+---
+
+## 🛠️ Run Locally
+
+**Prerequisites:** Node.js
+
+1.  **Clone & Install**:
+    ```bash
+    git clone https://github.com/kaushik943/prompt-verse.git
+    cd prompt-verse
+    npm install
+    ```
+
+2.  **Start Dev Server**:
+    ```bash
+    npm run dev
+    ```
+
+---
+
+## 🌐 Deploy
+This project is optimized for deployment on **Vercel**. Every push to `main` branch automatically triggers a new production build.
+
+---
+
+Built with ❤️ by **Aditya Kaushik** | Weekly Project #1
