@@ -111,7 +111,9 @@ const PromptCard = ({ item, onClick }: PromptCardProps) => {
 
   return (
     <motion.div
-      variants={itemVariants}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
       whileHover={{
         y: -10,
         scale: 1.02,
@@ -530,7 +532,15 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [promptsData, setPromptsData] = useState<Prompt[]>([]);
+  const [promptsData, setPromptsData] = useState<Prompt[]>([
+    {
+      id: "local-01",
+      title: "Neon Samurai in Cyber Cairo",
+      category: "Cinematic",
+      prompt: "A high-detail portrait of a futuristic samurai standing in a rainy, neon-lit Cairo street. Pyramid-shaped skyscrapers in the background with holographic hieroglyphs. Volumetric lighting, orange and teal color grade, 8k resolution, Unreal Engine 5 render style.",
+      imageUrl: "https://images.unsplash.com/photo-1614728263952-84ea206f0c45?q=80&w=1587&auto=format&fit=crop"
+    }
+  ]);
   const [filteredPrompts, setFilteredPrompts] = useState<Prompt[]>([]);
   const [featuredPrompt, setFeaturedPrompt] = useState<Prompt | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
@@ -1011,20 +1021,15 @@ export default function App() {
                     </motion.div>
                   </motion.div>
 
-                  <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pb-32">
+                  <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pb-32 min-h-[400px]">
                     {filteredPrompts.length > 0 ? (
-                      <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12"
-                      >
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
                         <AnimatePresence mode="popLayout">
                           {filteredPrompts.map((item) => (
                             <PromptCard key={item.id} item={item} onClick={setSelectedPrompt} />
                           ))}
                         </AnimatePresence>
-                      </motion.div>
+                      </div>
                     ) : (
                       <motion.div
                         initial={{ opacity: 0 }}
