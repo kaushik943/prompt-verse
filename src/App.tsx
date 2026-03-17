@@ -808,10 +808,11 @@ export default function App() {
                       transition={{ duration: 1, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
                       className="relative max-w-5xl mx-auto px-4 sm:px-0"
                     >
-                      <div
-                        className="relative aspect-square sm:aspect-video lg:aspect-[21/9] rounded-[2rem] sm:rounded-[3rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl group cursor-pointer"
-                        onClick={() => setSelectedPrompt(featuredPrompt)}
-                      >
+                      {featuredPrompt ? (
+                        <div
+                          className="relative aspect-square sm:aspect-video lg:aspect-[21/9] rounded-[2rem] sm:rounded-[3rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl group cursor-pointer"
+                          onClick={() => setSelectedPrompt(featuredPrompt)}
+                        >
                         <AnimatePresence mode="wait">
                           <motion.img
                             key={featuredPrompt.id}
@@ -872,6 +873,11 @@ export default function App() {
                           </button>
                         </div>
                       </div>
+                      ) : (
+                        <div className="relative aspect-square sm:aspect-video lg:aspect-[21/9] rounded-[2rem] sm:rounded-[3rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 animate-pulse flex items-center justify-center">
+                          <Sparkles className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />
+                        </div>
+                      )}
 
                       {/* Decorative Floating Badges */}
                       <motion.div
