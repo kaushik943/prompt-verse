@@ -15,6 +15,11 @@ const cleanImageUrl = (url: string) => {
   return url.trim();
 };
 
+const toTitleCase = (str: string) => {
+  if (!str) return '';
+  return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 interface Prompt {
   id: string;
   title: string;
@@ -535,7 +540,7 @@ export default function App() {
   const [promptsData, setPromptsData] = useState<Prompt[]>([
     {
       id: "local-01",
-      title: "Neon Samurai in Cyber Cairo",
+      title: toTitleCase("Neon Samurai in Cyber Cairo"),
       category: "Cinematic",
       prompt: "A high-detail portrait of a futuristic samurai standing in a rainy, neon-lit Cairo street. Pyramid-shaped skyscrapers in the background with holographic hieroglyphs. Volumetric lighting, orange and teal color grade, 8k resolution, Unreal Engine 5 render style.",
       imageUrl: "https://images.unsplash.com/photo-1614728263952-84ea206f0c45?q=80&w=1587&auto=format&fit=crop"
@@ -577,6 +582,7 @@ export default function App() {
         if (Array.isArray(data)) {
           const cleanedData = data.map((p: any) => ({
             ...p,
+            title: toTitleCase(p.title),
             category: p.category?.trim() || 'Uncategorized'
           }));
           setPromptsData(cleanedData);
