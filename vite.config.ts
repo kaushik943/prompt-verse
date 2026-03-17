@@ -22,12 +22,17 @@ export default defineConfig(({mode}) => {
               req.on('end', async () => {
                 try {
                   const data = JSON.parse(body);
-                  const { title, prompt, category, imageBase64, fileName } = data;
+                  const { title, prompt, category, imageBase64, imageUrl, fileName } = data;
 
-                  // Save image to assets
-                  const assetPath = path.resolve(__dirname, 'public/assets', fileName);
-                  const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
-                  fs.writeFileSync(assetPath, Buffer.from(base64Data, 'base64'));
+                  let finalImageUrl = imageUrl;
+
+                  // Save image to assets if base64 is provided
+                  if (imageBase64 && fileName) {
+                    const assetPath = path.resolve(__dirname, 'public/assets', fileName);
+                    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+                    fs.writeFileSync(assetPath, Buffer.from(base64Data, 'base64'));
+                    finalImageUrl = `/assets/${fileName}`;
+                  }
 
                   // Update prompts.json
                   const promptsPath = path.resolve(__dirname, 'src/prompts.json');
@@ -37,7 +42,7 @@ export default defineConfig(({mode}) => {
                     id: String(Date.now()),
                     title,
                     prompt,
-                    imageUrl: `/assets/${fileName}`,
+                    imageUrl: finalImageUrl,
                     category
                   };
                   
