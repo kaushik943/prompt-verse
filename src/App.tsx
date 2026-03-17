@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { Copy, Check, Search, Sparkles, LayoutGrid, Info, ArrowRight, Zap, Globe, Shield, X, Maximize2, Sun, Moon, Plus, Upload, Loader2, ChevronLeft } from 'lucide-react';
-import rawPromptsData from './prompts.json';
+// Replace this URL with your deployed Google Apps Script Web App URL
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwB2P5dDIRcZ6mcC8NWsFDK2b794siC-PyuyxwZvalptzOtveIogPH5kf1byk4AKlzww/exec";
 
 interface Prompt {
   id: string;
@@ -10,8 +11,6 @@ interface Prompt {
   imageUrl: string;
   category: string;
 }
-
-const promptsData = rawPromptsData as Prompt[];
 
 interface PromptCardProps {
   item: Prompt;
@@ -367,32 +366,28 @@ const AdminPanel = ({ onBack }: { onBack: () => void }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.imageUrl) return;
+    if (!formData.imageUrl) {
+      alert("Please provide an image link!");
+      return;
+    }
 
     setIsUploading(true);
     try {
-      const response = await fetch('/api/prompts', {
+      // POST to Google Apps Script
+      const response = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
+        mode: 'no-cors', // Apps Script requires no-cors for simple POSTs or handle redirects
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: formData.title,
-          prompt: formData.prompt,
-          category: formData.category,
-          imageUrl: formData.imageUrl
-        })
+        body: JSON.stringify(formData)
       });
 
-      const result = await response.json();
-      if (result.success) {
-        alert('Prompt added successfully!');
-        window.location.hash = ''; // Back to gallery
-        window.location.reload(); // Refresh to see new data
-      } else {
-        alert('Initialization failed: ' + result.error);
-      }
+      // Note: with no-cors we can't read the response, but it typically succeeds if headers are correct
+      alert('Prompt signal sent to the Cloud! The sheet will be updated momentarily.');
+      onBack();
+      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       console.error(error);
-      alert('An error occurred during addition.');
+      alert('An error occurred during communication with the Sheet.');
     } finally {
       setIsUploading(false);
     }
@@ -517,8 +512,9 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [filteredPrompts, setFilteredPrompts] = useState<Prompt[]>(promptsData);
-  const [featuredPrompt, setFeaturedPrompt] = useState<Prompt>(promptsData[0]);
+  const [promptsData, setPromptsData] = useState<Prompt[]>([]);
+  const [filteredPrompts, setFilteredPrompts] = useState<Prompt[]>([]);
+  const [featuredPrompt, setFeaturedPrompt] = useState<Prompt | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -540,20 +536,31 @@ export default function App() {
   const categories = ['All', ...new Set(promptsData.map(p => p.category))];
 
   useEffect(() => {
-    // Deterministic selection based on date (Prompt of the Day)
-    const today = new Date();
-    const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-
-    // Simple hash function for the date string
-    let hash = 0;
-    for (let i = 0; i < dateString.length; i++) {
-      const char = dateString.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
+    async function loadData() {
+      try {
+        const response = await fetch(APPS_SCRIPT_URL);
+        const data = await response.json();
+        setPromptsData(data);
+        setFilteredPrompts(data);
+        
+        // Featured selection
+        const today = new Date();
+        const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+        let hash = 0;
+        for (let i = 0; i < dateString.length; i++) {
+          const char = dateString.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash;
+        }
+        setFeaturedPrompt(data[Math.abs(hash) % data.length]);
+      } catch (err) {
+        console.error("Failed to fetch data from Sheets:", err);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    const dailyIndex = Math.abs(hash) % promptsData.length;
-    setFeaturedPrompt(promptsData[dailyIndex]);
+    loadData();
 
     // Simple Routing Logic based on Hash
     const handleHashChange = () => {
@@ -567,9 +574,7 @@ export default function App() {
     window.addEventListener('hashchange', handleHashChange);
     handleHashChange(); // Init
 
-    const timer = setTimeout(() => setLoading(false), 2000);
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('hashchange', handleHashChange);
     };
   }, []);
