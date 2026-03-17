@@ -617,7 +617,7 @@ export default function App() {
       return matchesSearch && matchesCategory;
     });
     setFilteredPrompts(filtered);
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, promptsData]);
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 font-sans selection:bg-zinc-900 selection:text-white dark:selection:bg-white dark:selection:text-black overflow-x-hidden">
@@ -921,7 +921,7 @@ export default function App() {
                           {promptsData.map((p) => (
                             <div key={`${i}-${p.id}`} className="flex items-center gap-8">
                               <div className="flex items-center gap-4">
-                                <img src={p.imageUrl} className="w-10 h-10 rounded-lg object-cover grayscale hover:grayscale-0 transition-all" alt="" referrerPolicy="no-referrer" />
+                                <img src={cleanImageUrl(p.imageUrl)} className="w-10 h-10 rounded-lg object-cover grayscale hover:grayscale-0 transition-all" alt="" referrerPolicy="no-referrer" />
                                 <span className="text-[10px] font-black tracking-[0.2em] uppercase text-zinc-400">
                                   {p.title}
                                 </span>
