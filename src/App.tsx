@@ -552,29 +552,42 @@ export default function App() {
   const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
-  const categories = ['All', ...new Set(promptsData.map(p => p.category))];
+  const categories = ['All', ...new Set((Array.isArray(promptsData) ? promptsData : []).map(p => p.category).filter(Boolean))];
 
   useEffect(() => {
     async function loadData() {
+      console.log("Initializing Neural Nexus connection...");
       try {
         const response = await fetch(APPS_SCRIPT_URL);
-        const data = await response.json();
-        setPromptsData(data);
-        setFilteredPrompts(data);
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
         
-        // Featured selection
-        const today = new Date();
-        const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-        let hash = 0;
-        for (let i = 0; i < dateString.length; i++) {
-          const char = dateString.charCodeAt(i);
-          hash = ((hash << 5) - hash) + char;
-          hash = hash & hash;
+        const data = await response.json();
+        console.log("Nexus Data Received:", Array.isArray(data) ? `${data.length} prompts` : "Not an array");
+
+        if (Array.isArray(data)) {
+          setPromptsData(data);
+          setFilteredPrompts(data);
+          
+          // Featured selection
+          if (data.length > 0) {
+            const today = new Date();
+            const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+            let hash = 0;
+            for (let i = 0; i < dateString.length; i++) {
+              const char = dateString.charCodeAt(i);
+              hash = ((hash << 5) - hash) + char;
+              hash = hash & hash;
+            }
+            setFeaturedPrompt(data[Math.abs(hash) % data.length]);
+          }
+        } else {
+          throw new Error("Invalid data format received from Nexus.");
         }
-        setFeaturedPrompt(data[Math.abs(hash) % data.length]);
       } catch (err) {
-        console.error("Failed to fetch data from Sheets:", err);
-        setError("Unable to connect to the Neural Nexus. Please check your Apps Script deployment and permissions.");
+        console.error("Critical: Failed to sync with Nexus:", err);
+        setError("Synchronization failure. The neural link is unstable. Please check your source sheet.");
+        // Fallback to empty allow the app to render error state
+        setPromptsData([]);
       } finally {
         setLoading(false);
       }
