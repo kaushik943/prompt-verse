@@ -4,6 +4,17 @@ import { Copy, Check, Search, Sparkles, LayoutGrid, Info, ArrowRight, Zap, Globe
 // Replace this URL with your deployed Google Apps Script Web App URL
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwB2P5dDIRcZ6mcC8NWsFDK2b794siC-PyuyxwZvalptzOtveIogPH5kf1byk4AKlzww/exec";
 
+const cleanImageUrl = (url: string) => {
+  if (!url) return '';
+  // If it's a srcset-style string (contains spaces and commas), take the highest resolution or just the first clean URL
+  if (url.includes(',') && url.includes(' ')) {
+    const parts = url.split(',').map(p => p.trim());
+    const lastPart = parts[parts.length - 1]; // Assume the last one is highest res
+    return lastPart.split(' ')[0];
+  }
+  return url.trim();
+};
+
 interface Prompt {
   id: string;
   title: string;
@@ -112,7 +123,8 @@ const PromptCard = ({ item, onClick }: PromptCardProps) => {
     >
       <div className="aspect-[4/5] overflow-hidden relative">
         <motion.img
-          src={item.imageUrl}
+          src={cleanImageUrl(item.imageUrl)}
+          srcSet={item.imageUrl.includes(',') ? item.imageUrl : undefined}
           alt={item.title}
           whileHover={{ scale: 1.15 }}
           className="w-full h-full object-cover transition-transform duration-700"
@@ -212,7 +224,8 @@ const PromptDetailModal = ({ item, onClose }: { item: Prompt | null, onClose: ()
                 initial={{ opacity: 0, scale: 0.8, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                src={item.imageUrl}
+                src={cleanImageUrl(item.imageUrl)}
+                srcSet={item.imageUrl.includes(',') ? item.imageUrl : undefined}
                 alt={item.title}
                 className="relative z-10 w-full h-full object-contain p-4 md:p-12 drop-shadow-2xl"
                 referrerPolicy="no-referrer"
@@ -482,7 +495,12 @@ const AdminPanel = ({ onBack }: { onBack: () => void }) => {
               <div className="bg-zinc-50 dark:bg-zinc-900 rounded-[2rem] lg:rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 p-4 lg:p-8 space-y-4 lg:space-y-6">
                 <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 relative">
                   {formData.imageUrl ? (
-                    <img src={formData.imageUrl} className="w-full h-full object-cover" alt="Preview" />
+                    <img 
+                      src={cleanImageUrl(formData.imageUrl)} 
+                      srcSet={formData.imageUrl.includes(',') ? formData.imageUrl : undefined}
+                      className="w-full h-full object-cover" 
+                      alt="Preview" 
+                    />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center opacity-20">
                       <Sparkles className="w-12 h-12" />
@@ -516,6 +534,7 @@ export default function App() {
   const [filteredPrompts, setFilteredPrompts] = useState<Prompt[]>([]);
   const [featuredPrompt, setFeaturedPrompt] = useState<Prompt | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -555,6 +574,7 @@ export default function App() {
         setFeaturedPrompt(data[Math.abs(hash) % data.length]);
       } catch (err) {
         console.error("Failed to fetch data from Sheets:", err);
+        setError("Unable to connect to the Neural Nexus. Please check your Apps Script deployment and permissions.");
       } finally {
         setLoading(false);
       }
@@ -603,6 +623,23 @@ export default function App() {
     <div ref={containerRef} className="relative min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 font-sans selection:bg-zinc-900 selection:text-white dark:selection:bg-white dark:selection:text-black overflow-x-hidden">
       <AnimatePresence>
         {loading && <Loader key="loader" />}
+        {!loading && error && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black p-6 text-center">
+            <div className="max-w-md space-y-6">
+              <div className="w-20 h-20 border-2 border-red-500/20 rounded-full flex items-center justify-center mx-auto">
+                <Info className="w-10 h-10 text-red-500" />
+              </div>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">System Breach</h2>
+              <p className="text-zinc-500 text-sm leading-relaxed">{error}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="px-8 py-3 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-zinc-200 transition-colors"
+              >
+                Re-initialize
+              </button>
+            </div>
+          </div>
+        )}
       </AnimatePresence>
 
       <PromptDetailModal
@@ -950,33 +987,35 @@ export default function App() {
                     </motion.div>
                   </motion.div>
 
-                  <motion.div
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-50px" }}
-                    variants={containerVariants}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-12"
-                  >
-                    <AnimatePresence mode="popLayout">
-                      {filteredPrompts.map((item) => (
-                        <PromptCard key={item.id} item={item} onClick={setSelectedPrompt} />
-                      ))}
-                    </AnimatePresence>
-                  </motion.div>
-
-                  {filteredPrompts.length === 0 && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-center py-60"
-                    >
-                      <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-900 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 rotate-12 shadow-inner">
-                        <Info className="w-12 h-12 text-zinc-400" />
-                      </div>
-                      <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">No results found</h3>
-                      <p className="text-zinc-500 max-w-sm mx-auto">The Promptverse is vast, but we couldn't find that specific prompt in our current sector.</p>
-                    </motion.div>
-                  )}
+                  <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 pb-32">
+                    {filteredPrompts.length > 0 ? (
+                      <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12"
+                      >
+                        <AnimatePresence mode="popLayout">
+                          {filteredPrompts.map((item) => (
+                            <PromptCard key={item.id} item={item} onClick={setSelectedPrompt} />
+                          ))}
+                        </AnimatePresence>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-center py-32 lg:py-60"
+                      >
+                        <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-900 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 rotate-12 shadow-inner">
+                          <Info className="w-12 h-12 text-zinc-400" />
+                        </div>
+                        <h3 className="text-2xl lg:text-3xl font-black uppercase tracking-tighter mb-4 italic">No results found</h3>
+                        <p className="text-zinc-500 max-w-sm mx-auto text-sm lg:text-base px-4">The Promptverse is vast, but we couldn't find that specific prompt in our current sector.</p>
+                      </motion.div>
+                    )}
+                  </div>
                 </section>
 
                 {/* Features Section - Production Ready */}
