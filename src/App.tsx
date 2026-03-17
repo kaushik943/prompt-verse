@@ -565,11 +565,15 @@ export default function App() {
         console.log("Nexus Data Received:", Array.isArray(data) ? `${data.length} prompts` : "Not an array");
 
         if (Array.isArray(data)) {
-          setPromptsData(data);
-          setFilteredPrompts(data);
+          const cleanedData = data.map((p: any) => ({
+            ...p,
+            category: p.category?.trim() || 'Uncategorized'
+          }));
+          setPromptsData(cleanedData);
+          setFilteredPrompts(cleanedData);
           
           // Featured selection
-          if (data.length > 0) {
+          if (cleanedData.length > 0) {
             const today = new Date();
             const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
             let hash = 0;
@@ -578,7 +582,7 @@ export default function App() {
               hash = ((hash << 5) - hash) + char;
               hash = hash & hash;
             }
-            setFeaturedPrompt(data[Math.abs(hash) % data.length]);
+            setFeaturedPrompt(cleanedData[Math.abs(hash) % cleanedData.length]);
           }
         } else {
           throw new Error("Invalid data format received from Nexus.");
@@ -833,7 +837,8 @@ export default function App() {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                            src={featuredPrompt.imageUrl}
+                            src={cleanImageUrl(featuredPrompt.imageUrl)}
+                            srcSet={featuredPrompt.imageUrl.includes(',') ? featuredPrompt.imageUrl : undefined}
                             className="absolute inset-0 w-full h-full object-cover"
                             alt="Featured Art"
                             referrerPolicy="no-referrer"
@@ -1011,8 +1016,7 @@ export default function App() {
                       <motion.div
                         variants={containerVariants}
                         initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
+                        animate="visible"
                         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12"
                       >
                         <AnimatePresence mode="popLayout">
